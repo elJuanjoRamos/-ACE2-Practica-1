@@ -1,0 +1,147 @@
+DROP DATABASE IF EXISTS Practica1;
+CREATE DATABASE Practica1;
+USE Practica1;
+
+CREATE TABLE TIPO_USUARIO(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE USUARIO(
+	id INT PRIMARY KEY AUTO_INCREMENT, 
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    pass VARCHAR(100) NOT NULL,
+    edad INT NOT NULL,
+    sexo CHAR NOT NULL,
+    peso INT NOT NULL,
+    estatura INT NOT NULL,
+    tipo INT NOT NULL,
+    FOREIGN KEY(tipo) REFERENCES TIPO_USUARIO(id)
+);
+
+
+CREATE TABLE COACH_USUARIO(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    atleta INT NOT NULL, 
+    coach INT NOT NULL,
+    FOREIGN KEY(atleta) REFERENCES USUARIO(id),
+    FOREIGN KEY(coach) REFERENCES USUARIO(id)
+);
+
+DROP TABLE IF EXISTS USUARIO_TEMPERATURA;
+CREATE TABLE USUARIO_TEMPERATURA(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    atleta INT NOT NULL,
+    temperatura DECIMAL(5, 2) NOT NULL,
+    fecha datetime NOT NULL,
+    FOREIGN KEY(atleta) REFERENCES USUARIO(id)
+);
+
+CREATE TABLE USUARIO_FRECUENCIA_CARDIACA(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    atleta INT NOT NULL,
+    frecuencia INT NOT NULL,
+    fecha datetime NOT NULL,
+    FOREIGN KEY(atleta) REFERENCES USUARIO(id)
+);
+
+
+CREATE TABLE USUARIO_OXIGENO(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    atleta INT NOT NULL,
+    oxigeno INT NOT NULL,
+    fecha datetime NOT NULL,
+    FOREIGN KEY(atleta) REFERENCES USUARIO(id)
+);
+
+DROP TABLE IF EXISTS FRECUENCIA_CARDIACA;
+CREATE TABLE FRECUENCIA_CARDIACA(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    tipo VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    rango_sup DECIMAL(5, 2) NOT NULL,
+    rango_inf DECIMAL(5, 2) NOT NULL,
+    edad_sup INT NOT NULL,
+    edad_inf INT NOT NULL,
+	edad VARCHAR(50) NOT NULL
+);
+
+DROP TABLE IF EXISTS TEMPERATURA;
+CREATE TABLE TEMPERATURA(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    tipo VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    rango_sup DECIMAL(5, 2) NOT NULL,
+    rango_inf DECIMAL(5, 2) NOT NULL,
+    edad_sup INT NOT NULL,
+    edad_inf INT NOT NULL,
+	edad VARCHAR(50) NOT NULL
+);
+DROP TABLE IF EXISTS OXIMETRIA_PULSOS;
+CREATE TABLE OXIMETRIA_PULSOS(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    tipo VARCHAR(50) NOT NULL,
+    descripcion VARCHAR(200) NOT NULL,
+    rango_sup DECIMAL(5, 2) NOT NULL,
+    rango_inf DECIMAL(5, 2) NOT NULL,
+    edad_sup INT NOT NULL,
+    edad_inf INT NOT NULL,
+	edad VARCHAR(50) NOT NULL
+);
+
+
+
+
+    
+/*PROCEDIMIENTOS ALMACENADOS*/
+DELIMITER $$
+DROP PROCEDURE IF EXISTS Crear_Usuario; 
+CREATE PROCEDURE Crear_Usuario
+(IN _nombres VARCHAR(100), _apellidos VARCHAR(100), _username VARCHAR(100), _pass VARCHAR(100), _edad INT, _sexo CHAR, _peso INT, _estatura INT , _tipo INT)
+BEGIN
+	DECLARE _existe INT;    
+	SET _existe = (SELECT COUNT(*) FROM USUARIO WHERE username = _username);
+	IF(_existe = 0) THEN
+		INSERT INTO USUARIO(nombres, apellidos, username, pass, edad,sexo, peso, estatura, tipo) VALUES(_nombres, _apellidos, _username, _pass, _edad,_sexo, _peso, _estatura, _tipo);
+		SELECT _existe;
+	ELSE
+		SELECT _existe;
+	END IF;
+END;
+$$
+
+    
+DELIMITER $$
+CREATE PROCEDURE SP_USUARIO_TEMP
+(IN _atleta INT, _temp DOUBLE(3, 2))
+BEGIN
+	INSERT INTO USUARIO_TEMPERATURA(atleta, temperatura, fecha) VALUES (_atleta, _temp, NOW());
+END;
+$$
+
+
+DELIMITER $$
+CREATE PROCEDURE SP_USUARIO_CARD
+(IN _atleta INT, _card INT)
+BEGIN
+	INSERT INTO USUARIO_FRECUENCIA_CARDIACA(atleta, frecuencia, fecha) VALUES (_atleta, _card, NOW());
+END;
+$$
+
+DELIMITER $$
+CREATE PROCEDURE SP_USUARIO_OXI
+(IN _atleta INT, _oxi INT)
+BEGIN
+	INSERT INTO USUARIO_OXIGENO(atleta, oxigeno, fecha) VALUES (_atleta, _oxi, NOW());
+END;
+$$
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '1234';
+FLUSH PRIVILEGES;
+
+
+
+
+
